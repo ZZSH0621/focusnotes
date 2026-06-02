@@ -33,6 +33,9 @@ import AnimatedTaskRow from "./AnimatedTaskRow";
 import TaskKanbanView from "./TaskKanbanView";
 import TimerBar from "./TimerBar";
 import FocusTimer from "./FocusTimer";
+import StatsPanel from "./StatsPanel";
+import { useStats } from "./useStats";
+import { useOnTimerComplete } from "./TimerContext";
 
 console.log('[App] Starting Focus Notes...');
 
@@ -140,6 +143,15 @@ function App() {
   // 笔记本相关状态
   const [currentView, setCurrentView] = useState<ViewMode>("tasks");
   const [taskViewMode, setTaskViewMode] = useState<"list" | "kanban">("list");
+  const [showStats, setShowStats] = useState(false);
+
+  // Stats recording
+  const stats = useStats();
+
+  // Record tomato on timer complete
+  useOnTimerComplete(() => {
+    stats.recordTomato(Math.round(25));
+  });
   const [notebookPages, setNotebookPages] = useState<NotebookPage[]>(loadNotebook);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
@@ -458,6 +470,7 @@ function App() {
     persist([newTask, ...tasks]);
     setTitle("");
     setDraftNote("");
+    stats.recordTaskCreated();
     // clean up new-task marker after animation
     setTimeout(() => newTaskIds.current.delete(newTask.id), 1500);
   }
@@ -467,6 +480,14 @@ function App() {
   }
 
   function toggleComplete(id: string) {
+    const task = tasks.find((t) => t.id === id);
+    if (task) {
+      if (task.completed) {
+        stats.recordTaskUncompleted();
+      } else {
+        stats.recordTaskCompleted();
+      }
+    }
     updateTask(id, (task) => ({ ...task, completed: !task.completed }));
   }
 
@@ -749,9 +770,11 @@ function App() {
           onChangeTaskViewMode={setTaskViewMode}
           onToggleTheme={toggleTheme}
           onSwitchView={setCurrentView}
+          onOpenStats={() => setShowStats(true)}
         />
         <TimerBar />
         <FocusTimer />
+        <StatsPanel isOpen={showStats} onClose={() => setShowStats(false)} />
       {currentView === "tasks" && taskViewMode === "kanban" && (
         <section className="task-board">
           <TaskKanbanView

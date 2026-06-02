@@ -1,4 +1,4 @@
-import { CheckCircle2, LayoutList, Columns3, Moon, Notebook, Sun } from "lucide-react";
+import { BarChart3, CheckCircle2, LayoutList, Columns3, Moon, Notebook, Sun } from "lucide-react";
 import type { Theme, ViewMode } from "./types";
 
 type AppHeaderProps = {
@@ -8,6 +8,7 @@ type AppHeaderProps = {
   onChangeTaskViewMode: (mode: "list" | "kanban") => void;
   onToggleTheme: () => void;
   onSwitchView: (view: ViewMode) => void;
+  onOpenStats: () => void;
 };
 
 export default function AppHeader({
@@ -17,6 +18,7 @@ export default function AppHeader({
   onChangeTaskViewMode,
   onToggleTheme,
   onSwitchView,
+  onOpenStats,
 }: AppHeaderProps) {
   return (
     <div className="header-bar">
@@ -28,6 +30,14 @@ export default function AppHeader({
       >
         {theme === "light" ? <Moon size={17} /> : <Sun size={17} />}
         {theme === "light" ? "深色模式" : "浅色模式"}
+      </button>
+      <button
+        className="stats-toggle"
+        type="button"
+        onClick={onOpenStats}
+        title="每日统计"
+      >
+        <BarChart3 size={17} />
       </button>
       {currentView === "tasks" && (
         <>

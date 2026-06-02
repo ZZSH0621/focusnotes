@@ -2382,3 +2382,213 @@ h3 {
   background: #2a2823;
   border-color: #3d3933;
 }
+
+/* Header stats toggle */
+.stats-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-filter);
+  cursor: pointer;
+  transition: all 160ms ease;
+  font-size: 0.82rem;
+}
+
+.stats-toggle:hover {
+  color: var(--color-text-filter-active);
+  background: var(--color-bg-filter-active);
+}
+
+/* ==========================================================================
+   Stats Panel — Feature 5
+   ========================================================================== */
+.stats-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(20, 19, 17, 0.35);
+}
+
+.stats-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 201;
+  width: min(380px, 90vw);
+  background: var(--color-bg-board);
+  border-left: 1px solid var(--color-border);
+  box-shadow: -4px 0 30px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.stats-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stats-panel-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text-heading);
+  margin: 0;
+}
+
+.stats-date {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-text-meta);
+  margin: 0;
+}
+
+.stats-loading {
+  text-align: center;
+  color: var(--color-text-muted);
+  padding: 40px;
+}
+
+/* Ring */
+.stats-ring-container {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto;
+}
+
+.stats-ring {
+  width: 100%;
+  height: 100%;
+}
+
+.stats-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.ring-rate {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.ring-sub {
+  font-size: 0.75rem;
+  color: var(--color-text-meta);
+}
+
+/* Detail cards */
+.stats-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--color-bg-filter-active);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.stat-card-icon {
+  display: flex;
+  color: var(--color-accent);
+}
+
+.stat-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-card-label {
+  font-size: 0.78rem;
+  color: var(--color-text-meta);
+}
+
+.stat-card-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.stat-card-sub {
+  font-size: 0.73rem;
+  color: var(--color-text-muted);
+}
+
+/* 7-day trend */
+.stats-trend {
+  margin-top: 8px;
+}
+
+.stats-trend h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-heading);
+  margin: 0 0 12px;
+}
+
+.trend-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 120px;
+  padding: 0 4px;
+}
+
+.trend-bar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.trend-bar-fill {
+  width: 100%;
+  max-width: 32px;
+  background: var(--color-accent);
+  border-radius: 4px 4px 0 0;
+  min-height: 4px;
+  transition: height 400ms ease;
+}
+
+.trend-bar-label {
+  font-size: 0.6rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .stats-panel {
+  background: #25231f;
+  border-color: #3d3933;
+}
+
+[data-theme="dark"] .stat-card {
+  background: rgba(255, 255, 255, 0.04);
+}
