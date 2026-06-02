@@ -1,2 +1,10 @@
-- [Netlify Deployment](deployment-netlify.md) — TraeCC Focus Notes web deployment on Netlify
-- [Tauri Video Black Screen Fix](tauri-video-black-screen-fix.md) — 桌面端视频黑屏完整排查过程、根因与最终方案
+- [Focus Notes 2.0 — Project Map](project--focus-notes.md) — full tech stack, file map, git history, all 6 features
+- [Pattern: Spring Animation](pattern--spring-animation.md) — framer-motion spring + confetti + reduced motion gate
+- [Pattern: Kanban DnD](pattern--kanban-dnd-kit.md) — @dnd-kit cross-column with useDroppable + rectIntersection
+- [Pattern: Timer Context](pattern--timer-context.md) — React Context countdown + Page Visibility API correction
+- [Pattern: IndexedDB Stats](pattern--indexeddb-stats.md) — separate DB, date-keyed, transaction-based upsert
+- [Decision: Flat src/](decision--component-extraction.md) — why no nested folders for 17 source files
+- [Decision: framer-motion](decision--framer-over-css.md) — why framer-motion over CSS for physics effects
+- [Session: 2026-06-02](session--2026-06-02-v2.md) — 8 commits, 11 new files, 0 TS errors, all 6 features built
+- [Netlify Deployment](deployment-netlify.md) — web deployment on Netlify
+- [Tauri Video Black Screen Fix](tauri-video-black-screen-fix.md) — WebView2 video bug root cause and fix
