@@ -1777,3 +1777,172 @@ h3 {
     min-height: 320px;
   }
 }
+
+/* ==========================================================================
+   Reduced Motion — respect OS accessibility preference
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==========================================================================
+   Launch Screen — Feature 1
+   ========================================================================== */
+.launch-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(
+    135deg,
+    var(--color-bg-app-gradient-start) 0%,
+    var(--color-bg-app-gradient-end) 100%
+  );
+  cursor: pointer;
+  user-select: none;
+}
+
+.launch-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.launch-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.launch-icon {
+  font-size: 64px;
+  line-height: 1;
+}
+
+.launch-logo h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.launch-tagline {
+  font-size: 1.15rem;
+  color: var(--color-text-meta);
+  margin: 0;
+}
+
+.launch-version {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  background: var(--color-accent-priority-bg);
+  padding: 2px 10px;
+  border-radius: 99px;
+  letter-spacing: 0.04em;
+}
+
+.launch-skip-hint {
+  margin-top: 32px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  opacity: 0.7;
+}
+
+[data-theme="dark"] .launch-screen {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 15, 13, 0.98) 0%,
+    rgba(39, 36, 31, 0.98) 100%
+  );
+}
+
+[data-theme="dark"] .launch-logo h1 {
+  color: #e0dcd5;
+}
+
+[data-theme="dark"] .launch-tagline {
+  color: #9d968b;
+}
+
+[data-theme="dark"] .launch-skip-hint {
+  color: #7a7368;
+}
+
+/* ==========================================================================
+   Confetti — Feature 2
+   ========================================================================== */
+.confetti-container {
+  position: fixed;
+  pointer-events: none;
+  z-index: 5000;
+  width: 0;
+  height: 0;
+}
+
+.confetti-particle {
+  will-change: transform, opacity;
+}
+
+/* ==========================================================================
+   Animated Task Row — Feature 2 (overrides old task-animate-in)
+   ========================================================================== */
+.task-row {
+  /* Remove old CSS animation — framer-motion handles it now */
+  animation: none !important;
+}
+
+/* Priority badge bounce — applied via React key change */
+.priority-label {
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* Button micro-interactions */
+.theme-toggle,
+.notebook-toggle {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.theme-toggle:active,
+.notebook-toggle:active {
+  transform: scale(0.97);
+}
+
+.filter-tabs button {
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 160ms ease;
+}
+.filter-tabs button:active {
+  transform: scale(0.97);
+}
+
+.toolbar-actions button,
+.toolbar-actions select {
+  transition: transform 120ms ease;
+}
+.toolbar-actions button:active {
+  transform: scale(0.97);
+}
+
+.add-button {
+  transition: transform 150ms ease;
+}
+.add-button:active {
+  transform: scale(0.93);
+}
+
+.complete-button {
+  transition: transform 150ms ease;
+}
+.complete-button:active {
+  transform: scale(0.9);
+}

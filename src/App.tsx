@@ -10,14 +10,12 @@ import {
   Clock3,
   Download,
   MessageSquareText,
-  Moon,
   Music,
   Notebook,
   PencilLine,
   Plus,
   RotateCcw,
   Save,
-  Sun,
   Trash,
   Trash2,
   ImageIcon,
@@ -27,35 +25,11 @@ import {
   X,
 } from "lucide-react";
 import { storeMediaFile, resolveMediaUrlSync, hydrateMediaRefs, deleteMediaRef } from "./mediaStore";
-
-type Priority = "high" | "medium" | "low";
-type SortMode = "created-desc" | "created-asc" | "priority";
-type FilterMode = "all" | "active" | "completed" | "trash";
-type Theme = "light" | "dark";
-
-type NotebookPage = {
-  id: string;
-  title: string;
-  content: string;
-  images: string[];
-  audio: string[];
-  video: string[];
-  createdAt: string;
-};
-
-type Task = {
-  id: string;
-  title: string;
-  note: string;
-  priority: Priority;
-  completed: boolean;
-  createdAt: string;
-  deletedAt?: string;
-};
-
-const STORAGE_KEY = "focus-notes.tasks";
-const THEME_KEY = "focus-notes.theme";
-const NOTEBOOK_KEY = "focus-notes.notebook";
+import type { Priority, SortMode, FilterMode, Theme, NotebookPage, Task, ViewMode } from "./types";
+import { STORAGE_KEY, THEME_KEY, NOTEBOOK_KEY, priorityMeta, filters, createId, formatDate } from "./types";
+import AppHeader from "./AppHeader";
+import LaunchScreen from "./LaunchScreen";
+import AnimatedTaskRow from "./AnimatedTaskRow";
 
 console.log('[App] Starting Focus Notes...');
 
@@ -127,26 +101,6 @@ function loadNotebook(): NotebookPage[] {
   }
 }
 
-const priorityMeta: Record<Priority, { label: string; rank: number }> = {
-  high: { label: "高", rank: 3 },
-  medium: { label: "中", rank: 2 },
-  low: { label: "低", rank: 1 },
-};
-
-const filters: Array<{ value: FilterMode; label: string }> = [
-  { value: "all", label: "全部" },
-  { value: "active", label: "进行中" },
-  { value: "completed", label: "已完成" },
-  { value: "trash", label: "回收站" },
-];
-
-function createId() {
-  if (crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
 
 function loadTasks(): Task[] {
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -160,15 +114,6 @@ function loadTasks(): Task[] {
   } catch {
     return [];
   }
-}
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("zh-CN", {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(value));
 }
 
 function App() {
@@ -186,8 +131,11 @@ function App() {
   const [theme, setTheme] = useState<Theme>(loadTheme);
   const [exportMessage, setExportMessage] = useState<string>("");
   
+  // 启动动画
+  const [showLaunch, setShowLaunch] = useState(true);
+
   // 笔记本相关状态
-  const [currentView, setCurrentView] = useState<"tasks" | "notebook">("tasks");
+  const [currentView, setCurrentView] = useState<ViewMode>("tasks");
   const [notebookPages, setNotebookPages] = useState<NotebookPage[]>(loadNotebook);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
@@ -197,6 +145,9 @@ function App() {
   const [pageAudioDraft, setPageAudioDraft] = useState<Record<string, string[]>>({});
   const [pageVideoDraft, setPageVideoDraft] = useState<Record<string, string[]>>({});
   const [isMuted, setIsMuted] = useState(false);
+
+  // 跟踪新创建的任务 ID，用于触发入场动画
+  const newTaskIds = useRef<Set<string>>(new Set());
 
   // 媒体缓存：mediaId → blob URL，避免把大文件存进 state/localStorage
   const mediaUrlCache = useRef<Record<string, string>>({});
@@ -223,6 +174,13 @@ function App() {
 
   // 安全获取当前页面，防止越界崩溃
   const currentPage = notebookPages[currentPageIndex] ?? null;
+
+  // 启动动画自动结束（1.2s 后）
+  useEffect(() => {
+    if (!showLaunch) return;
+    const timer = setTimeout(() => setShowLaunch(false), 1200);
+    return () => clearTimeout(timer);
+  }, [showLaunch]);
 
   // 切换笔记本页面时预加载媒体
   useEffect(() => {
@@ -492,9 +450,12 @@ function App() {
       createdAt: new Date().toISOString(),
     };
 
+    newTaskIds.current.add(newTask.id);
     persist([newTask, ...tasks]);
     setTitle("");
     setDraftNote("");
+    // clean up new-task marker after animation
+    setTimeout(() => newTaskIds.current.delete(newTask.id), 1500);
   }
 
   function updateTask(id: string, updater: (task: Task) => Task) {
@@ -774,35 +735,15 @@ function App() {
   const allNotesExpanded = noteTasks.length > 0 && noteTasks.every((task) => expandedNotes[task.id]);
 
   return (
-    <main className="app-shell">
-      <div className="header-bar">
-        <button className="theme-toggle" type="button" onClick={toggleTheme} title={theme === "light" ? "切换到深色模式" : "切换到浅色模式"}>
-          {theme === "light" ? <Moon size={17} /> : <Sun size={17} />}
-          {theme === "light" ? "深色模式" : "浅色模式"}
-        </button>
-        {currentView === "tasks" && (
-          <button 
-            className="notebook-toggle" 
-            type="button" 
-            onClick={() => setCurrentView("notebook")} 
-            title="打开笔记本"
-          >
-            <Notebook size={17} />
-            笔记本
-          </button>
-        )}
-        {currentView === "notebook" && (
-          <button 
-            className="notebook-toggle" 
-            type="button" 
-            onClick={() => setCurrentView("tasks")} 
-            title="返回任务清单"
-          >
-            <CheckCircle2 size={17} />
-            任务清单
-          </button>
-        )}
-      </div>
+    <>
+      {showLaunch && <LaunchScreen onComplete={() => setShowLaunch(false)} />}
+      <main className="app-shell" style={{ visibility: showLaunch ? "hidden" : "visible" }}>
+        <AppHeader
+          theme={theme}
+          currentView={currentView}
+          onToggleTheme={toggleTheme}
+        onSwitchView={setCurrentView}
+      />
       {currentView === "tasks" && (<section className="task-board">
         <form className="quick-add" onSubmit={handleAddTask}>
           <div className="quick-input-row">
@@ -925,16 +866,12 @@ function App() {
               const isInTrash = Boolean(task.deletedAt);
 
               return (
-                <article
-                  className={`task-row ${task.completed ? "is-completed" : ""} ${isInTrash ? "is-deleted" : ""} task-animate-in`}
+                <AnimatedTaskRow
                   key={task.id}
-                  style={{ animationDelay: `${index * 300}ms` }}
-                  onContextMenu={(event) => {
-                    event.preventDefault();
-                    if (!isInTrash) {
-                      toggleComplete(task.id);
-                    }
-                  }}
+                  taskId={task.id}
+                  isCompleted={task.completed}
+                  isDeleted={isInTrash}
+                  isNew={newTaskIds.current.has(task.id)}
                 >
                   <span className={`priority-dot priority-${task.priority}`} aria-hidden="true" />
 
@@ -1041,7 +978,7 @@ function App() {
                       </>
                     )}
                   </div>
-                </article>
+                </AnimatedTaskRow>
               );
             })
           )}
@@ -1336,6 +1273,7 @@ function App() {
         </section>
       )}
     </main>
+    </>
   );
 }
 
