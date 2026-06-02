@@ -34,6 +34,7 @@ import TaskKanbanView from "./TaskKanbanView";
 import TimerBar from "./TimerBar";
 import FocusTimer from "./FocusTimer";
 import StatsPanel from "./StatsPanel";
+import QuickCapture from "./QuickCapture";
 import { useStats } from "./useStats";
 import { useOnTimerComplete } from "./TimerContext";
 
@@ -144,6 +145,7 @@ function App() {
   const [currentView, setCurrentView] = useState<ViewMode>("tasks");
   const [taskViewMode, setTaskViewMode] = useState<"list" | "kanban">("list");
   const [showStats, setShowStats] = useState(false);
+  const [isCaptureOpen, setIsCaptureOpen] = useState(false);
 
   // Stats recording
   const stats = useStats();
@@ -197,6 +199,39 @@ function App() {
     const timer = setTimeout(() => setShowLaunch(false), 1200);
     return () => clearTimeout(timer);
   }, [showLaunch]);
+
+  // 全局快捷键注册（Tauri 桌面端）
+  useEffect(() => {
+    const tauriWindow = window as unknown as { __TAURI__?: unknown };
+    if (!tauriWindow.__TAURI__) return;
+    const shortcut = "CommandOrControl+Shift+N";
+    import("@tauri-apps/plugin-global-shortcut")
+      .then(({ register }) =>
+        register(shortcut, () => setIsCaptureOpen(true))
+      )
+      .catch((err) => console.warn("[QuickCapture] 快捷键注册失败:", err));
+    return () => {
+      import("@tauri-apps/plugin-global-shortcut")
+        .then(({ unregister }) => unregister(shortcut))
+        .catch(() => {});
+    };
+  }, []);
+
+  // 快速捕捉提交
+  function handleQuickAdd(title: string, priority: Priority) {
+    const newTask: Task = {
+      id: createId(),
+      title: title.trim(),
+      note: "",
+      priority,
+      completed: false,
+      createdAt: new Date().toISOString(),
+    };
+    newTaskIds.current.add(newTask.id);
+    persist([newTask, ...tasks]);
+    stats.recordTaskCreated();
+    setTimeout(() => newTaskIds.current.delete(newTask.id), 1500);
+  }
 
   // 切换笔记本页面时预加载媒体
   useEffect(() => {
@@ -775,6 +810,11 @@ function App() {
         <TimerBar />
         <FocusTimer />
         <StatsPanel isOpen={showStats} onClose={() => setShowStats(false)} />
+        <QuickCapture
+          isOpen={isCaptureOpen}
+          onClose={() => setIsCaptureOpen(false)}
+          onAdd={handleQuickAdd}
+        />
       {currentView === "tasks" && taskViewMode === "kanban" && (
         <section className="task-board">
           <TaskKanbanView

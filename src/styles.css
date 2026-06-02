@@ -2592,3 +2592,148 @@ h3 {
 [data-theme="dark"] .stat-card {
   background: rgba(255, 255, 255, 0.04);
 }
+
+/* ==========================================================================
+   Quick Capture — Feature 6
+   ========================================================================== */
+.quick-capture-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  background: rgba(20, 19, 17, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+.quick-capture-card {
+  width: min(480px, 90vw);
+  background: var(--color-bg-board);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.capture-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.capture-header h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text-heading);
+  margin: 0;
+}
+
+.capture-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid var(--color-border-light);
+  background: var(--color-bg-input);
+  color: var(--color-text-input);
+  font-size: 1.05rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 200ms ease;
+}
+
+.capture-input:focus {
+  border-color: var(--color-accent);
+}
+
+.capture-input::placeholder {
+  color: var(--color-text-input-placeholder);
+}
+
+.capture-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.capture-priority {
+  display: flex;
+  gap: 6px;
+}
+
+.capture-prio-btn {
+  padding: 5px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-input);
+  color: var(--color-text-filter);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.capture-prio-btn.priority-high.is-active {
+  background: var(--color-priority-high);
+  color: #fff;
+  border-color: var(--color-priority-high);
+}
+
+.capture-prio-btn.priority-medium.is-active {
+  background: var(--color-priority-medium);
+  color: #fff;
+  border-color: var(--color-priority-medium);
+}
+
+.capture-prio-btn.priority-low.is-active {
+  background: var(--color-priority-low);
+  color: #fff;
+  border-color: var(--color-priority-low);
+}
+
+.capture-submit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border-radius: 99px;
+  border: none;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.capture-submit:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.capture-submit:not(:disabled):active {
+  transform: scale(0.96);
+}
+
+.capture-hint {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.capture-hint kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--color-bg-filter-active);
+  border: 1px solid var(--color-border);
+  font-family: inherit;
+  font-size: 0.72rem;
+}
+
+[data-theme="dark"] .quick-capture-card {
+  background: #2a2823;
+}
