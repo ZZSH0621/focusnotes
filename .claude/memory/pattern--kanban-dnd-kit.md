@@ -3,6 +3,8 @@ name: pattern--kanban-dnd-kit
 description: "Reusable pattern: @dnd-kit cross-column drag-and-drop with useDroppable columns, PointerSensor 5px threshold, and rectIntersection collision"
 metadata:
   type: pattern
+  ai_priority: fragile
+  ai_tags: [gotcha, copy-paste]
   tags: [dnd-kit, drag-and-drop, kanban, react]
 ---
 

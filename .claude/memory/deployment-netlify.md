@@ -3,7 +3,9 @@ name: deployment-netlify
 description: TraeCC Focus Notes web deployment on Netlify with auto-build
 metadata: 
   node_type: memory
-  type: project
+  type: reference
+  ai_priority: contextual
+  ai_tags: []
   originSessionId: 012bfed4-dcef-4d3b-acf9-661b933aa211
 ---
 

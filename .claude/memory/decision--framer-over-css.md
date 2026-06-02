@@ -3,6 +3,8 @@ name: decision--framer-over-css
 description: "Why framer-motion was chosen over CSS animations for Focus Notes 2.0 physics effects"
 metadata:
   type: decision
+  ai_priority: contextual
+  ai_tags: [architecture-decision]
   tags: [framer-motion, animation, css, dependency]
 ---
 

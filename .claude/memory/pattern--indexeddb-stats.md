@@ -3,6 +3,8 @@ name: pattern--indexeddb-stats
 description: "Reusable pattern: separate IndexedDB database for daily statistics, date-keyed with transaction-based read-modify-write upsert"
 metadata:
   type: pattern
+  ai_priority: reusable
+  ai_tags: [copy-paste]
   tags: [indexeddb, statistics, persistence, typescript]
 ---
 

@@ -3,6 +3,8 @@ name: pattern--spring-animation
 description: "Reusable pattern: framer-motion spring animations for task CRUD, confetti on complete, micro-interactions, and reduced-motion gating"
 metadata:
   type: pattern
+  ai_priority: reusable
+  ai_tags: [copy-paste, architecture-decision]
   tags: [framer-motion, animation, accessibility, css]
 ---
 

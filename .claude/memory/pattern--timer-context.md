@@ -3,6 +3,8 @@ name: pattern--timer-context
 description: "Reusable pattern: React Context countdown timer with setInterval, Page Visibility API background correction, and completion detection via useEffect"
 metadata:
   type: pattern
+  ai_priority: reusable
+  ai_tags: [copy-paste, architecture-decision]
   tags: [react, context, timer, setinterval, visibility-api]
 ---
 

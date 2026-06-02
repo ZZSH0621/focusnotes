@@ -3,6 +3,8 @@ name: project--focus-notes
 description: "Focus Notes 2.0 — full project map: tech stack, architecture decisions, file structure, and all 6 feature implementations"
 metadata:
   type: project
+  ai_priority: reusable
+  ai_tags: [architecture-decision, copy-paste]
   tags: [react, tauri, framer-motion, dnd-kit, indexeddb, pomodoro]
 ---
 

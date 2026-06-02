@@ -4,6 +4,8 @@ description: "Tauri WebView2 video upload causes black screen — diagnosis step
 metadata: 
   node_type: memory
   type: project
+  ai_priority: fragile
+  ai_tags: [gotcha, blocking-bug]
   originSessionId: d40dfc8a-7eaa-4510-a19c-34266ac7ff42
 ---
 

@@ -3,6 +3,8 @@ name: decision--component-extraction
 description: "Why Focus Notes 2.0 uses flat src/ with 17 files instead of nested folders or a component library"
 metadata:
   type: decision
+  ai_priority: contextual
+  ai_tags: [architecture-decision]
   tags: [architecture, react, project-structure]
 ---
 
