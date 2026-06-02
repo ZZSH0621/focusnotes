@@ -30,6 +30,7 @@ import { STORAGE_KEY, THEME_KEY, NOTEBOOK_KEY, priorityMeta, filters, createId, 
 import AppHeader from "./AppHeader";
 import LaunchScreen from "./LaunchScreen";
 import AnimatedTaskRow from "./AnimatedTaskRow";
+import TaskKanbanView from "./TaskKanbanView";
 
 console.log('[App] Starting Focus Notes...');
 
@@ -136,6 +137,7 @@ function App() {
 
   // 笔记本相关状态
   const [currentView, setCurrentView] = useState<ViewMode>("tasks");
+  const [taskViewMode, setTaskViewMode] = useState<"list" | "kanban">("list");
   const [notebookPages, setNotebookPages] = useState<NotebookPage[]>(loadNotebook);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
@@ -741,10 +743,20 @@ function App() {
         <AppHeader
           theme={theme}
           currentView={currentView}
+          taskViewMode={taskViewMode}
+          onChangeTaskViewMode={setTaskViewMode}
           onToggleTheme={toggleTheme}
-        onSwitchView={setCurrentView}
-      />
-      {currentView === "tasks" && (<section className="task-board">
+          onSwitchView={setCurrentView}
+        />
+      {currentView === "tasks" && taskViewMode === "kanban" && (
+        <section className="task-board">
+          <TaskKanbanView
+            tasks={filteredTasks}
+            onToggleComplete={toggleComplete}
+          />
+        </section>
+      )}
+      {currentView === "tasks" && taskViewMode === "list" && (<section className="task-board">
         <form className="quick-add" onSubmit={handleAddTask}>
           <div className="quick-input-row">
             <input

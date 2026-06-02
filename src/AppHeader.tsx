@@ -1,14 +1,23 @@
-import { CheckCircle2, Moon, Notebook, Sun } from "lucide-react";
+import { CheckCircle2, LayoutList, Columns3, Moon, Notebook, Sun } from "lucide-react";
 import type { Theme, ViewMode } from "./types";
 
 type AppHeaderProps = {
   theme: Theme;
   currentView: ViewMode;
+  taskViewMode: "list" | "kanban";
+  onChangeTaskViewMode: (mode: "list" | "kanban") => void;
   onToggleTheme: () => void;
   onSwitchView: (view: ViewMode) => void;
 };
 
-export default function AppHeader({ theme, currentView, onToggleTheme, onSwitchView }: AppHeaderProps) {
+export default function AppHeader({
+  theme,
+  currentView,
+  taskViewMode,
+  onChangeTaskViewMode,
+  onToggleTheme,
+  onSwitchView,
+}: AppHeaderProps) {
   return (
     <div className="header-bar">
       <button
@@ -21,15 +30,37 @@ export default function AppHeader({ theme, currentView, onToggleTheme, onSwitchV
         {theme === "light" ? "深色模式" : "浅色模式"}
       </button>
       {currentView === "tasks" && (
-        <button
-          className="notebook-toggle"
-          type="button"
-          onClick={() => onSwitchView("notebook")}
-          title="打开笔记本"
-        >
-          <Notebook size={17} />
-          笔记本
-        </button>
+        <>
+          <div className="view-tabs">
+            <button
+              className={`view-tab ${taskViewMode === "list" ? "is-active" : ""}`}
+              type="button"
+              onClick={() => onChangeTaskViewMode("list")}
+              title="列表视图"
+            >
+              <LayoutList size={15} />
+              列表
+            </button>
+            <button
+              className={`view-tab ${taskViewMode === "kanban" ? "is-active" : ""}`}
+              type="button"
+              onClick={() => onChangeTaskViewMode("kanban")}
+              title="看板视图"
+            >
+              <Columns3 size={15} />
+              看板
+            </button>
+          </div>
+          <button
+            className="notebook-toggle"
+            type="button"
+            onClick={() => onSwitchView("notebook")}
+            title="打开笔记本"
+          >
+            <Notebook size={17} />
+            笔记本
+          </button>
+        </>
       )}
       {currentView === "notebook" && (
         <button
