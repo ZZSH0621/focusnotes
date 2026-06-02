@@ -8,21 +8,20 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  closestCenter,
+  useDroppable,
+  rectIntersection,
 } from "@dnd-kit/core";
 import {
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
-  arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { motion, AnimatePresence } from "framer-motion";
 import { Circle, CheckCircle2, Clock3 } from "lucide-react";
-import type { Task, Priority } from "./types";
+import type { Task } from "./types";
 import { priorityMeta, formatDate } from "./types";
 import { useReducedMotion } from "./useReducedMotion";
-import Confetti from "./Confetti";
 
 type TaskKanbanViewProps = {
   tasks: Task[];
@@ -115,8 +114,19 @@ function Column({
 }) {
   const taskIds = useMemo(() => tasks.map((t) => t.id), [tasks]);
 
+  // Register the column as a droppable zone so cards can be dropped here
+  const { setNodeRef: setDroppableRef, isOver: isDroppableOver } = useDroppable({
+    id: `column-${columnId}`,
+  });
+
+  const highlight = isOver || isDroppableOver;
+
   return (
-    <div className={`kanban-column ${isOver ? "drop-target" : ""}`} data-column={columnId}>
+    <div
+      ref={setDroppableRef}
+      className={`kanban-column ${highlight ? "drop-target" : ""}`}
+      data-column={columnId}
+    >
       <div className="kanban-column-header">
         <h3>{title}</h3>
         <span className="kanban-count">{count}</span>
@@ -138,15 +148,35 @@ function Column({
 }
 
 /* ------------------------------------------------------------------ */
+/* Helpers                                                             */
+/* ------------------------------------------------------------------ */
+
+/** Resolve the column ID from a draggable/droppable/sortable identifier */
+function getColumnFromId(
+  id: string,
+  activeIds: string[],
+  completedIds: string[],
+): "active" | "completed" | null {
+  if (id.startsWith("column-")) {
+    return id === "column-active" ? "active" : "completed";
+  }
+  if (activeIds.includes(id)) return "active";
+  if (completedIds.includes(id)) return "completed";
+  return null;
+}
+
+/* ------------------------------------------------------------------ */
 /* Main Kanban View                                                    */
 /* ------------------------------------------------------------------ */
 export default function TaskKanbanView({ tasks, onToggleComplete }: TaskKanbanViewProps) {
   const shouldReduce = useReducedMotion();
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [overColumn, setOverColumn] = useState<string | null>(null);
+  const [overColumnId, setOverColumnId] = useState<string | null>(null);
 
   const activeTasks = useMemo(() => tasks.filter((t) => !t.completed), [tasks]);
   const completedTasks = useMemo(() => tasks.filter((t) => t.completed), [tasks]);
+  const activeIds = useMemo(() => activeTasks.map((t) => t.id), [activeTasks]);
+  const completedIds = useMemo(() => completedTasks.map((t) => t.id), [completedTasks]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -161,34 +191,28 @@ export default function TaskKanbanView({ tasks, onToggleComplete }: TaskKanbanVi
   }
 
   function handleDragOver(event: DragOverEvent) {
-    const overId = event.over?.id;
+    const overId = event.over?.id as string | undefined;
     if (!overId) {
-      setOverColumn(null);
+      setOverColumnId(null);
       return;
     }
-    // Determine which column the cursor is over
-    const overInCompleted = completedTasks.some((t) => t.id === overId);
-    const overInActive = activeTasks.some((t) => t.id === overId);
-    if (overInCompleted) setOverColumn("completed");
-    else if (overInActive) setOverColumn("active");
-    else setOverColumn(null);
+    const col = getColumnFromId(overId, activeIds, completedIds);
+    setOverColumnId(col);
   }
 
   function handleDragEnd(event: DragEndEvent) {
     setActiveId(null);
-    setOverColumn(null);
+    setOverColumnId(null);
 
     const { active, over } = event;
     if (!over) return;
 
     const draggedId = active.id as string;
     const overId = over.id as string;
+    const sourceCol = getColumnFromId(draggedId, activeIds, completedIds);
+    const targetCol = getColumnFromId(overId, activeIds, completedIds);
 
-    // Determine target column
-    const overInCompleted = completedTasks.some((t) => t.id === overId);
-    const draggedIsCompleted = completedTasks.some((t) => t.id === draggedId);
-
-    if (draggedIsCompleted !== overInCompleted) {
+    if (sourceCol && targetCol && sourceCol !== targetCol) {
       // Card moved between columns — toggle completion
       onToggleComplete(draggedId);
     }
@@ -198,7 +222,7 @@ export default function TaskKanbanView({ tasks, onToggleComplete }: TaskKanbanVi
     <div className="kanban-board">
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={rectIntersection}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
@@ -207,7 +231,7 @@ export default function TaskKanbanView({ tasks, onToggleComplete }: TaskKanbanVi
           title="进行中"
           tasks={activeTasks}
           columnId="active"
-          isOver={overColumn === "active"}
+          isOver={overColumnId === "active"}
           count={activeTasks.length}
           onToggle={onToggleComplete}
         />
@@ -215,7 +239,7 @@ export default function TaskKanbanView({ tasks, onToggleComplete }: TaskKanbanVi
           title="已完成"
           tasks={completedTasks}
           columnId="completed"
-          isOver={overColumn === "completed"}
+          isOver={overColumnId === "completed"}
           count={completedTasks.length}
           onToggle={onToggleComplete}
         />
