@@ -31,6 +31,8 @@ import AppHeader from "./AppHeader";
 import LaunchScreen from "./LaunchScreen";
 import AnimatedTaskRow from "./AnimatedTaskRow";
 import TaskKanbanView from "./TaskKanbanView";
+import TimerBar from "./TimerBar";
+import FocusTimer from "./FocusTimer";
 
 console.log('[App] Starting Focus Notes...');
 
@@ -748,6 +750,8 @@ function App() {
           onToggleTheme={toggleTheme}
           onSwitchView={setCurrentView}
         />
+        <TimerBar />
+        <FocusTimer />
       {currentView === "tasks" && taskViewMode === "kanban" && (
         <section className="task-board">
           <TaskKanbanView

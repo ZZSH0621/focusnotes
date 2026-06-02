@@ -2134,3 +2134,251 @@ h3 {
     gap: 16px;
   }
 }
+
+/* ==========================================================================
+   Timer Bar — Feature 4
+   ========================================================================== */
+.timer-bar {
+  position: relative;
+  width: 100%;
+  height: 3px;
+  background: var(--color-border);
+  flex-shrink: 0;
+}
+
+.timer-bar-fill {
+  height: 100%;
+  transition: background-color 300ms ease;
+}
+
+.timer-bar-fill.is-running {
+  background: var(--color-accent);
+}
+
+.timer-bar-fill.is-paused {
+  background: var(--color-priority-medium);
+}
+
+.timer-bar-label {
+  position: absolute;
+  right: 8px;
+  top: 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+  background: var(--color-bg-board);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   Focus Timer Panel & Trigger — Feature 4
+   ========================================================================== */
+.focus-timer-trigger {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 99px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-board);
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: all 200ms ease;
+}
+
+.focus-timer-trigger:hover {
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+}
+
+.focus-timer-trigger.is-active {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+
+.focus-timer-trigger.is-active .trigger-time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+/* Timer panel (dropdown card) */
+.focus-timer-panel {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  z-index: 101;
+  width: min(340px, 90vw);
+  background: var(--color-bg-board);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  padding: 20px;
+}
+
+.timer-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.timer-panel-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-heading);
+  margin: 0;
+}
+
+/* Timer running display */
+.timer-running {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.timer-display {
+  font-size: 3rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.timer-progress-ring {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.progress-ring {
+  width: 100%;
+  height: 100%;
+}
+
+.ring-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--color-text-meta);
+}
+
+/* Timer setup */
+.timer-setup {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.timer-duration-label {
+  font-size: 0.85rem;
+  color: var(--color-text-meta);
+  font-weight: 500;
+}
+
+.timer-presets {
+  display: flex;
+  gap: 8px;
+}
+
+.preset-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-input);
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.preset-btn.is-active {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+
+.preset-btn:active {
+  transform: scale(0.95);
+}
+
+/* Timer action buttons */
+.timer-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.timer-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 160ms ease;
+}
+
+.timer-btn:active {
+  transform: scale(0.96);
+}
+
+.timer-btn.start {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.timer-btn.resume {
+  background: var(--color-priority-low);
+  color: #fff;
+}
+
+.timer-btn.pause {
+  background: var(--color-priority-medium);
+  color: #fff;
+}
+
+.timer-btn.abandon {
+  background: var(--color-bg-tag-default);
+  color: var(--color-text-meta);
+}
+
+/* Focus overlay — dim the app during focus */
+.focus-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+}
+
+[data-theme="dark"] .focus-overlay {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .focus-timer-panel {
+  background: #2a2823;
+  border-color: #3d3933;
+}
