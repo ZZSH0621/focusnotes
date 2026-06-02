@@ -36,7 +36,7 @@ import FocusTimer from "./FocusTimer";
 import StatsPanel from "./StatsPanel";
 import QuickCapture from "./QuickCapture";
 import { useStats } from "./useStats";
-import { useOnTimerComplete } from "./TimerContext";
+import { useOnTimerComplete, useTimer } from "./TimerContext";
 
 console.log('[App] Starting Focus Notes...');
 
@@ -149,10 +149,12 @@ function App() {
 
   // Stats recording
   const stats = useStats();
+  const timer = useTimer();
 
   // Record tomato on timer complete
   useOnTimerComplete(() => {
-    stats.recordTomato(Math.round(25));
+    const focusMin = Math.round(timer.durationSeconds / 60);
+    stats.recordTomato(focusMin);
   });
   const [notebookPages, setNotebookPages] = useState<NotebookPage[]>(loadNotebook);
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
