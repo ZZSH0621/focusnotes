@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>LocalStorage 诊断</title>
+  <style>
+    body { font-family: monospace; background: #1e1c19; color: #e0dcd5; padding: 24px; }
+    h2 { color: #d4695a; }
+    .ok { color: #7aad89; }
+    .warn { color: #d4b04a; }
+    .fail { color: #d4695a; }
+    pre { background: #2a2823; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 12px; white-space: pre-wrap; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <h2>🔍 LocalStorage 残留数据诊断</h2>
+  <div id="output"></div>
+
+  <script>
+    const out = document.getElementById('output');
+    function log(label, cls, detail) {
+      out.innerHTML += `<p class="${cls}">${label}</p>` + (detail ? `<pre>${detail}</pre>` : '');
+    }
+
+    const key = 'focus-notes.notebook';
+    const raw = localStorage.getItem(key);
+
+    if (!raw) {
+      log('✅ 没有旧数据，不是 base64 遗留问题', 'ok');
+    } else {
+      let pages;
+      try { pages = JSON.parse(raw); } catch(e) { log('❌ 数据已损坏', 'fail', e.message); }
+
+      if (pages && Array.isArray(pages)) {
+        log(`📋 共 ${pages.length} 个页面`, 'ok');
+        let foundBase64 = false;
+        let totalBase64Size = 0;
+
+        pages.forEach((p, i) => {
+          const checkMedia = (arr, label) => {
+            if (!arr || arr.length === 0) return;
+            arr.forEach((item, j) => {
+              if (item.startsWith('data:')) {
+                foundBase64 = true;
+                const sizeMB = (item.length / 1024 / 1024).toFixed(2);
+                totalBase64Size += item.length;
+                log(`⚠️ 页面${i} ${label}[${j}]: base64 残留 — ${sizeMB} MB`, 'warn',
+                  `前缀: ${item.substring(0, 80)}...`);
+              } else if (item.startsWith('tauri:')) {
+                log(`✅ 页面${i} ${label}[${j}]: Tauri 文件路径`, 'ok', item);
+              } else if (item.startsWith('blob:')) {
+                log(`⚠️ 页面${i} ${label}[${j}]: blob URL (仅会话有效)`, 'warn', item.substring(0, 80));
+              } else {
+                log(`✅ 页面${i} ${label}[${j}]: IndexedDB ID`, 'ok', item);
+              }
+            });
+          };
+
+          checkMedia(p.images, '图片');
+          checkMedia(p.audio, '音频');
+          checkMedia(p.video, '视频');
+        });
+
+        if (foundBase64) {
+          const totalMB = (totalBase64Size / 1024 / 1024).toFixed(2);
+          log(`💥 发现 base64 残留数据！总计约 ${totalMB} MB`, 'fail');
+          log('👉 点击下方按钮清除 base64 条目', 'warn');
+          out.innerHTML += `<button onclick="cleanBase64()" style="padding:12px 24px;background:#d4695a;color:#fff;border:none;border-radius:6px;cursor:pointer;font:inherit;font-size:16px;">🧹 清除所有 base64 数据</button>`;
+        } else {
+          log('✅ 没有 base64 残留，不是旧数据问题', 'ok');
+        }
+      }
+    }
+
+    // 额外的 localStorage 概览
+    out.innerHTML += '<h3>📊 LocalStorage 总览</h3>';
+    let totalBytes = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      const v = localStorage.getItem(k);
+      totalBytes += (v || '').length;
+      const kb = ((v || '').length / 1024).toFixed(1);
+      out.innerHTML += `<pre>${k}: ${kb} KB</pre>`;
+    }
+    log(`Total localStorage: ${(totalBytes / 1024 / 1024).toFixed(2)} MB`, totalBytes > 5*1024*1024 ? 'warn' : 'ok');
+  </script>
+
+  <script>
+    function cleanBase64() {
+      const raw = localStorage.getItem('focus-notes.notebook');
+      if (!raw) return;
+      const pages = JSON.parse(raw);
+      pages.forEach(p => {
+        if (p.images) p.images = p.images.filter(v => !v.startsWith('data:'));
+        if (p.audio) p.audio = p.audio.filter(v => !v.startsWith('data:'));
+        if (p.video) p.video = p.video.filter(v => !v.startsWith('data:'));
+      });
+      localStorage.setItem('focus-notes.notebook', JSON.stringify(pages));
+      alert('已清除！刷新页面重新检查');
+      location.reload();
+    }
+  </script>
+</body>
+</html>

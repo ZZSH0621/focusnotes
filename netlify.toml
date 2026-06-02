@@ -1,0 +1,4 @@
+# 本地构建 + 手动部署，不消耗 Netlify 构建积分
+# 发布目录：dist
+[publish]
+  dir = "dist"

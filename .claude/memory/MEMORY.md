@@ -1,0 +1,2 @@
+- [Netlify Deployment](deployment-netlify.md) — TraeCC Focus Notes web deployment on Netlify
+- [Tauri Video Black Screen Fix](tauri-video-black-screen-fix.md) — 桌面端视频黑屏完整排查过程、根因与最终方案

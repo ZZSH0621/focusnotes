@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>Video Debug — WebView2 诊断</title>
+  <style>
+    body { font-family: monospace; background: #1e1c19; color: #e0dcd5; padding: 24px; }
+    h2 { color: #d4695a; }
+    .step { margin: 12px 0; padding: 10px; background: #2a2823; border-radius: 6px; }
+    .ok { color: #7aad89; }
+    .fail { color: #d4695a; }
+    video, img { max-width: 400px; border-radius: 8px; background: #000; }
+    button, label { display: inline-block; margin: 8px; padding: 10px 18px;
+      background: #d4695a; color: #fff; border: none; border-radius: 6px; cursor: pointer; font: inherit; }
+  </style>
+</head>
+<body>
+  <h2>🔍 WebView2 视频诊断</h2>
+  <div id="log"></div>
+
+  <script>
+    const log = document.getElementById('log');
+    function step(title, status, detail) {
+      const cls = status === 'ok' ? 'ok' : status === 'fail' ? 'fail' : '';
+      log.innerHTML += `<div class="step"><span class="${cls}">${status === 'ok' ? '✅' : status === 'fail' ? '❌' : '⏳'} ${title}</span>${detail ? '<br><small>' + detail + '</small>' : ''}</div>`;
+    }
+
+    async function runAll() {
+      log.innerHTML = '';
+
+      // Test 1: Basic DOM
+      try {
+        step('Test 1: 页面渲染', 'ok', 'DOM 正常');
+      } catch(e) { step('Test 1: 页面渲染', 'fail', e.message); return; }
+
+      // Test 2: Check WebView2
+      const ua = navigator.userAgent;
+      step('Test 2: User Agent', 'ok', ua.substring(0, 80));
+
+      // Test 3: Check Tauri
+      const isTauri = !!window.__TAURI__;
+      step('Test 3: Tauri 环境', isTauri ? 'ok' : 'ok', isTauri ? 'Tauri 已检测到' : '浏览器环境（非 Tauri）');
+
+      // Test 4: Create blob URL from small test
+      try {
+        const testBlob = new Blob(['test'], { type: 'text/plain' });
+        const testUrl = URL.createObjectURL(testBlob);
+        URL.revokeObjectURL(testUrl);
+        step('Test 4: Blob URL 创建', 'ok', 'createObjectURL 正常');
+      } catch(e) { step('Test 4: Blob URL 创建', 'fail', e.message); }
+
+      // Test 5: IndexedDB
+      try {
+        await new Promise((resolve, reject) => {
+          const req = indexedDB.open('__debug_test__', 1);
+          req.onupgradeneeded = () => req.result.createObjectStore('test');
+          req.onsuccess = () => { req.result.close(); indexedDB.deleteDatabase('__debug_test__'); resolve(); };
+          req.onerror = () => reject(req.error);
+        });
+        step('Test 5: IndexedDB', 'ok', '读写正常');
+      } catch(e) { step('Test 5: IndexedDB', 'fail', e.message); }
+
+      // Test 6: Video codecs
+      const video = document.createElement('video');
+      step('Test 6: Video 元素创建', 'ok',
+        'canPlayType H.264: ' + (video.canPlayType('video/mp4; codecs="avc1.42E01E"') || 'no') +
+        ', WebM: ' + (video.canPlayType('video/webm; codecs="vp8"') || 'no'));
+
+      // Test 7: <input type=file> + small video via blob URL
+      step('Test 7: 选一个视频文件测试', 'pending', '点击下方按钮...');
+    }
+
+    function createFileInput(accept) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = accept;
+      input.style.display = 'block';
+      input.style.margin = '8px 0';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        step('Test 7: 文件已选择', 'ok', file.name + ' (' + (file.size/1024/1024).toFixed(1) + ' MB)');
+
+        try {
+          const blobUrl = URL.createObjectURL(file);
+          step('Test 7: Blob URL 已创建', 'ok', blobUrl.substring(0, 50) + '...');
+
+          const video = document.createElement('video');
+          video.src = blobUrl;
+          video.controls = true;
+          video.width = 400;
+          video.preload = 'metadata';
+          video.style.display = 'block';
+          video.style.marginTop = '8px';
+
+          video.onloadedmetadata = () => {
+            step('Test 7: 视频元数据已加载', 'ok', video.videoWidth + 'x' + video.videoHeight + ', ' + video.duration + 's');
+          };
+          video.onerror = (ev) => {
+            step('Test 7: 视频加载失败', 'fail', '可能编码不支持或文件损坏');
+          };
+
+          document.body.appendChild(video);
+          step('Test 7: Video 元素已添加到页面', 'ok', '如果页面仍然正常显示，说明 video 元素不是黑屏原因');
+        } catch(e) {
+          step('Test 7: 异常', 'fail', e.message + '\n' + e.stack);
+        }
+      };
+      return input;
+    }
+
+    runAll();
+
+    // Add file input for testing
+    const container = document.createElement('div');
+    container.style.marginTop = '16px';
+    container.innerHTML = '<p>选择视频文件测试 blob URL 播放：</p>';
+    container.appendChild(createFileInput('video/*'));
+
+    // Also add Tauri-specific test
+    if (window.__TAURI__) {
+      const tauriBtn = document.createElement('button');
+      tauriBtn.textContent = '🧪 Test 8: Tauri 原生对话框 + Rust 复制';
+      tauriBtn.onclick = async () => {
+        try {
+          const { open } = await import('@tauri-apps/plugin-dialog');
+          const { invoke } = await import('@tauri-apps/api/core');
+          const { convertFileSrc } = await import('@tauri-apps/api/core');
+
+          step('Test 8: 打开原生对话框...', 'pending');
+          const selected = await open({
+            title: '选一个视频',
+            filters: [{ name: '视频', extensions: ['mp4', 'webm', 'mkv', 'avi', 'mov'] }],
+            multiple: false,
+          });
+          if (!selected) { step('Test 8: 取消', 'ok', '用户取消'); return; }
+          const srcPath = typeof selected === 'string' ? selected : selected;
+          step('Test 8: 已选择', 'ok', srcPath);
+
+          step('Test 8: Rust copy_media_file...', 'pending');
+          const destPath = await invoke('copy_media_file', {
+            source: srcPath,
+            mediaDir: 'F:\\AI\\TraeCC\\media\\',
+          });
+          step('Test 8: Rust 复制完成', 'ok', destPath);
+
+          const url = convertFileSrc(destPath);
+          step('Test 8: convertFileSrc', 'ok', url.substring(0, 60) + '...');
+
+          const video = document.createElement('video');
+          video.src = url;
+          video.controls = true;
+          video.width = 400;
+          video.preload = 'none';
+          video.style.display = 'block';
+          video.style.marginTop = '8px';
+          video.onloadedmetadata = () => step('Test 8: 视频可播放', 'ok', video.videoWidth + 'x' + video.videoHeight);
+          video.onerror = () => step('Test 8: convertFileSrc URL 无法播放', 'fail', '资产协议可能拒绝访问');
+          document.body.appendChild(video);
+          step('Test 8: Video 已渲染', 'ok', '检查是否黑屏');
+        } catch(e) {
+          step('Test 8: 异常', 'fail', e.message + '\n' + e.stack);
+        }
+      };
+      container.appendChild(tauriBtn);
+    }
+
+    document.body.appendChild(container);
+  </script>
+</body>
+</html>

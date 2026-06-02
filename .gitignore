@@ -1,0 +1,31 @@
+﻿# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Rust
+src-tauri/target/
+
+# Claude sessions
+.claude/sessions/
+.claude/*.jsonl
+
+# User media
+media/
+
+# Debug
+*.log
