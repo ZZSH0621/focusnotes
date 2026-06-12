@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Agent Stragety Hook\" -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '\\\\.\\(mp4|mov|avi|mkv|webm\\)$' } | Select-Object FullName, Length, LastWriteTime | Format-Table -AutoSize)"
+    ]
+  }
+}
