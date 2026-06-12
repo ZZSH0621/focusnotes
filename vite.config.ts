@@ -3,6 +3,8 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  // Tauri needs "/" root; GitHub Pages project site needs "/focusnotes/"
+  base: process.env.TAURI_ENV_PLATFORM ? "/" : "/focusnotes/",
   clearScreen: false,
   server: {
     host: "127.0.0.1",
